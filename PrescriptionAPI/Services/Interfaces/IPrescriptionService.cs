@@ -1,6 +1,9 @@
-﻿namespace PrescriptionAPI.Services.Interfaces;
+﻿using PrescriptionAPI.Models.DTOs;
 
-public class IPrescriptionService
+namespace PrescriptionAPI.Services.Interfaces;
+
+public interface IPrescriptionService
 {
-    
+    Task<int> CreatePrescriptionAsync(CreatePrescriptionDto createPrescriptionDto);
+    Task<PatientDetailDto> GetPatientDetailsAsync(int patientId);
 }
