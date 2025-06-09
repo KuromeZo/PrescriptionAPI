@@ -14,6 +14,8 @@ public class PrescriptionDbContext : DbContext
         public DbSet<Medicament> Medicaments { get; set; }
         public DbSet<Prescription> Prescriptions { get; set; }
         public DbSet<PrescriptionMedicament> PrescriptionMedicaments { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -58,7 +60,6 @@ public class PrescriptionDbContext : DbContext
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // (Many-to-Many)
             modelBuilder.Entity<PrescriptionMedicament>(entity =>
             {
                 entity.HasKey(e => new { e.IdMedicament, e.IdPrescription });
@@ -75,6 +76,32 @@ public class PrescriptionDbContext : DbContext
 
                 entity.Property(e => e.Dose).IsRequired();
                 entity.Property(e => e.Details).HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.IdUser);
+                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.PasswordHash).IsRequired();
+                entity.Property(e => e.Salt).IsRequired();
+                entity.Property(e => e.CreatedAt).IsRequired();
+                
+                entity.HasIndex(e => e.Username).IsUnique();
+            });
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Token).IsRequired();
+                entity.Property(e => e.ExpiryDate).IsRequired();
+                entity.Property(e => e.CreatedAt).IsRequired();
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.RefreshTokens)
+                    .HasForeignKey(d => d.IdUser)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => e.Token).IsUnique();
             });
 
             base.OnModelCreating(modelBuilder);

@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PrescriptionAPI.Models.DTOs;
 using PrescriptionAPI.Services.Interfaces;
 
-namespace PrescriptionAPI.Controllers;
-
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class PrescriptionController : ControllerBase
 {
     private readonly IPrescriptionService _prescriptionService;
@@ -20,11 +20,6 @@ public class PrescriptionController : ControllerBase
     {
         try
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var prescriptionId = await _prescriptionService.CreatePrescriptionAsync(createPrescriptionDto);
             return CreatedAtAction(nameof(CreatePrescription), new { id = prescriptionId }, new { Id = prescriptionId });
         }
